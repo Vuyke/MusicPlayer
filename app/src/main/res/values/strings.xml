@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">MusicPlayer</string>
+    <string name="button">Click this</string>
+    <string name="defaultText">TextView</string>
+    <string name="notificationChannel">Channel 1</string>
+</resources>
