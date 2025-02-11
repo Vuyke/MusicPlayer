@@ -1,37 +1,40 @@
-package com.example.musicplayer
+package com.example.musicplayer.activities
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.ActivityOptions
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.ContentValues.TAG
-import android.content.Context
 import android.content.Intent
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.musicplayer.R
+import com.example.musicplayer.song_ui.BottomLayout
+import com.example.musicplayer.song_ui.MusicPlayerService
+import com.example.musicplayer.utils.ItemRecycleAdapter
+import com.example.musicplayer.utils.MyPlayer
+import com.example.musicplayer.utils.Util
+import com.google.common.util.concurrent.ListenableFuture
 
 class MainActivity : AppCompatActivity() {
-    private val CHANNEL_ID = "5"
     private lateinit var recycle: RecyclerView
     private lateinit var bottom: BottomLayout
-
-    private var songs: MutableList<MusicItem> = mutableListOf()
+    private lateinit var controllerFuture: ListenableFuture<MediaController>
+    private lateinit var sessionToken: SessionToken
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        createChannel(this)
         Log.d(TAG, "onCreate")
         if(Util.arePermissionsGranted(this))
             onStartLogic()
@@ -39,23 +42,28 @@ class MainActivity : AppCompatActivity() {
             Util.permissions(this, this)
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     private fun onStartLogic() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
             != PackageManager.PERMISSION_GRANTED && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), Util.REQ)
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                Util.REQ
+            )
         }
+        MyPlayer.initPlayer(this)
         setContentView(R.layout.activity_main)
-        MyPlayer.initPlayer()
         bottom = BottomLayout(findViewById(R.id.main))
         MyPlayer.setActiveSongUI(bottom)
         this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        songs = Util.mp3Files(this)
         recycle = findViewById(R.id.recycle1)
         recycle.setLayoutManager(LinearLayoutManager(this))
-        recycle.setAdapter(ItemRecycleAdapter(this, songs) { selectedItem, i ->
-            MyPlayer.startSong(this, selectedItem)
-            MyPlayer.initQueue(songs, i)
-            createNotification(this)
+        val serviceIntent = Intent(this, MusicPlayerService::class.java)
+        recycle.setAdapter(ItemRecycleAdapter(this, MyPlayer.songs) { _, i ->
+            startForegroundService(serviceIntent)
+//            controllerFuture.get().play()
+            MyPlayer.initQueue(i)
+            MyPlayer.startSong(this, MyPlayer.PlayType.CURRENT)
+
         })
         bottom.bottom.setOnClickListener {
             val intent = Intent(this, ActivityPlayingSong::class.java)
@@ -79,11 +87,14 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         Log.d(TAG, "onDestroy")
         MyPlayer.destroy()
+        stopService(Intent(this, MusicPlayerService::class.java))
+
     }
 
     override fun onStart() {
         super.onStart()
-        Log.d(TAG, "onStart")
+        sessionToken = SessionToken(this, ComponentName(this, MusicPlayerService::class.java))
+        controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
     }
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -98,31 +109,5 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Permissions are required to proceed", Toast.LENGTH_SHORT).show()
             finish()
         }
-    }
-
-    fun createNotification(context: Context) {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
-            != PackageManager.PERMISSION_GRANTED) return
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.play)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentTitle("Notification TEST")
-            .setContentText("Content 1, 2, 3")
-            .setAutoCancel(true)
-            .build()
-        val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(1, notification)
-
-    }
-
-    fun createChannel(context: Context) {
-        val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        val name = context.getString(R.string.notificationChannel)
-        val descriptionText = "Description 1"
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val mChannel = NotificationChannel(CHANNEL_ID, name, importance)
-        mChannel.description = descriptionText
-        mChannel.setShowBadge(false)
-        notificationManager.createNotificationChannel(mChannel)
     }
 }

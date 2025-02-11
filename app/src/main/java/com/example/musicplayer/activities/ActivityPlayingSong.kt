@@ -1,4 +1,4 @@
-package com.example.musicplayer
+package com.example.musicplayer.activities
 
 import android.os.Bundle
 import android.widget.ImageView
@@ -6,6 +6,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.musicplayer.utils.MyPlayer
+import com.example.musicplayer.R
+import com.example.musicplayer.utils.Util
+import com.example.musicplayer.song_ui.SongLayout
 
 class ActivityPlayingSong : AppCompatActivity() {
 
@@ -25,6 +29,6 @@ class ActivityPlayingSong : AppCompatActivity() {
             insets
         }
         albumArt = findViewById(R.id.albumArt)
-        Util.getImageView(MyPlayer.music?.art, this, albumArt)
+        Util.getImageView(MyPlayer.music?.artPath, this, albumArt)
     }
 }

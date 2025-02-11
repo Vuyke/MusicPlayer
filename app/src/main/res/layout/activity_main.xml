@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".activities.MainActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycle1"
@@ -17,6 +17,7 @@
         app:layout_constraintBottom_toBottomOf="parent"/>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id = "@+id/bottomLayout"
+        android:transitionName="layout_transition"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:visibility="gone"
@@ -43,7 +44,7 @@
             android:transitionName="artist_transition"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text= "Artist name"
+            android:text="Artist name"
             android:textStyle="italic"
             android:paddingStart="15dp"
             android:paddingBottom="5dp"
@@ -77,6 +78,7 @@
             android:layout_height="55dp"
             android:transitionName="album_cover_transition"
             android:src="@drawable/play"
+            android:paddingTop = "5dp"
             app:layout_constraintEnd_toStartOf="@id/play_pause_button"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/progressBar"

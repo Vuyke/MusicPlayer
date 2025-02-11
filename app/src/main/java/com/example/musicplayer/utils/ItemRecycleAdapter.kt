@@ -1,4 +1,4 @@
-package com.example.musicplayer
+package com.example.musicplayer.utils
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.musicplayer.data_class.MusicItem
+import com.example.musicplayer.R
 
 class ItemRecycleAdapter(private val context: Context, private val songs: MutableList<MusicItem>, private val listener: (MusicItem, Int) -> Unit) : RecyclerView.Adapter<ItemRecycleAdapter.ItemViewHolder>() {
 
@@ -35,7 +37,7 @@ class ItemRecycleAdapter(private val context: Context, private val songs: Mutabl
             this.title.text = song.name
             this.artist.text = song.artist
             this.path = song.path
-            Util.getImageView(song.art, context, image)
+            Util.getImageView(song.artPath, context, image)
         }
     }
 }

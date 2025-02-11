@@ -1,4 +1,4 @@
-package com.example.musicplayer
+package com.example.musicplayer.utils
 
 import android.content.Context
 import android.media.AudioAttributes
@@ -13,7 +13,7 @@ class AudioFocus(context: Context) {
                 if (!MyPlayer.isPlaying) {
                     MyPlayer.forcePlaySong()
                 }
-                MyPlayer.setVolume(1.0f, 1.0f)
+                MyPlayer.setVolume(1.0f)
             }
             AudioManager.AUDIOFOCUS_LOSS, AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
                 if (MyPlayer.isPlaying) {
@@ -21,7 +21,7 @@ class AudioFocus(context: Context) {
                 }
             }
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
-                MyPlayer.setVolume(0.3f, 0.3f)
+                MyPlayer.setVolume(0.2f)
             }
         }
     }
