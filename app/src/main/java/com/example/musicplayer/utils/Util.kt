@@ -18,7 +18,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import com.example.musicplayer.data_class.MusicItem
 import com.example.musicplayer.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,8 +58,8 @@ object Util {
         return Color.rgb(r, g, b)
     }
 
-    fun mp3Files(context: Context): MutableList<MusicItem>{
-        val list:MutableList<MusicItem> = mutableListOf()
+    fun mp3Files(context: Context): MutableList<MediaItem>{
+        val list:MutableList<MediaItem> = mutableListOf()
         val contentResolver: ContentResolver = context.contentResolver
         val uri: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val collect: Array<String> = arrayOf(
@@ -80,7 +79,7 @@ object Util {
             while(it.moveToNext()) {
                 val id = it.getLong(albumIdIndex)
                 val albumUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
-                list.add(MusicItem(createMediaItem(it.getString(dataIndex), it.getString(artistIndex), it.getString(pathIndex), albumUri)))
+                list.add(createMediaItem(it.getString(dataIndex), it.getString(artistIndex), it.getString(pathIndex), albumUri))
             }
         }
         return list.asReversed()
@@ -98,21 +97,13 @@ object Util {
             .build()
     }
 
-    private fun getAlbumArtBytes(bitmap: Bitmap?, format: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG, quality: Int = 100): ByteArray? {
-        return bitmap?.let {
-            val stream = ByteArrayOutputStream()
-            it.compress(format, quality, stream)
-            return stream.toByteArray()
-        }
-    }
-
     fun getAlbumArt(albumUri: Uri?, context: Context): Bitmap? {
         if (albumUri == null)
             return null
         return try {
             context.contentResolver.loadThumbnail(
                 albumUri,
-                Size(300, 300),
+                Size(288, 288),
                 null
             )
         } catch (e: IOException) {
@@ -121,12 +112,12 @@ object Util {
         }
     }
 
-    fun getImageView(albumUri: Uri?, context: Context, imageView: ImageView) {
+    fun getImageView(albumUri: Uri?, context: Context, imageView: ImageView, iconPath: Int) {
         CoroutineScope(Dispatchers.IO).launch {
             val bitmap = getAlbumArt(albumUri, context)
             if (bitmap == null) {
                 withContext(Dispatchers.Main) {
-                    imageView.setImageResource(R.mipmap.ic_launcher)
+                    imageView.setImageResource(iconPath)
                 }
             } else {
                 withContext(Dispatchers.Main) {

@@ -38,7 +38,6 @@ class MusicPlayerService : MediaSessionService() {
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
-//        setMediaNotificationProvider(notificationProvider())
         mediaSession = MediaSession.Builder(this, MyPlayer.player)
             .setBitmapLoader(MyBitmapLoader(applicationContext))
             .setCallback(sessionCallback)
@@ -47,19 +46,15 @@ class MusicPlayerService : MediaSessionService() {
     }
 
     private val sessionCallback = object : MediaSession.Callback {
-        override fun onAddMediaItems(
-            mediaSession: MediaSession,
-            controller: MediaSession.ControllerInfo,
-            mediaItems: MutableList<MediaItem>
-        ): ListenableFuture<MutableList<MediaItem>> {
-            return super.onAddMediaItems(mediaSession, controller, mediaItems)
-        }
-    }
 
-    @OptIn(UnstableApi::class)
-    private fun notificationProvider(): DefaultMediaNotificationProvider {
-        val provider = DefaultMediaNotificationProvider(this)
-        return provider
+        override fun onCustomCommand(
+            session: MediaSession,
+            controller: MediaSession.ControllerInfo,
+            customCommand: SessionCommand,
+            args: Bundle
+        ): ListenableFuture<SessionResult> {
+            return super.onCustomCommand(session, controller, customCommand, args)
+        }
     }
 
 

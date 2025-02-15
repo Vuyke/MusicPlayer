@@ -11,6 +11,7 @@ import com.example.musicplayer.R
 import com.example.musicplayer.utils.Util
 
 abstract class SongUI(view: View) {
+    abstract val format: Int
     val artist: TextView = view.findViewById(R.id.artist)
     private val song: TextView = view.findViewById(R.id.song)
     private val playButton: ImageView = view.findViewById(R.id.play_pause_button)
@@ -33,9 +34,9 @@ abstract class SongUI(view: View) {
 
     open fun refresh() {
         MyPlayer.music?.let {
-            artist.text = it.artist
-            song.text = it.name
-            Util.getImageView(it.artPath, context, albumArt)
+            artist.text = it.mediaMetadata.artist
+            song.text = it.mediaMetadata.title
+            Util.getImageView(it.mediaMetadata.artworkUri, context, albumArt, format)
             playButton.setImageResource(MyPlayer.playPauseResource())
             if (MyPlayer.isPlaying)
                 handler.post(updateProgressBar)

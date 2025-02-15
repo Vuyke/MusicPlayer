@@ -4,16 +4,13 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.util.Log
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
-import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.source.ProgressiveMediaSource
-import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
-import androidx.media3.session.SessionToken
-import com.example.musicplayer.data_class.MusicItem
 import com.example.musicplayer.R
 import com.example.musicplayer.song_ui.SongUI
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 object MyPlayer {
@@ -22,13 +19,14 @@ object MyPlayer {
         NEXT, PREV, CURRENT
     }
 
+    private var bluetoothCommand: Boolean = true
     lateinit var player: ExoPlayer
     private var focus: AudioFocus? = null
     private var activeSongUI: WeakReference<SongUI>? = null
-    var songs: MutableList<MusicItem> = mutableListOf()
+    var songs: MutableList<MediaItem> = mutableListOf()
 
-    val music: MusicItem?
-        get() = player.currentMediaItem?.let { MusicItem(it) }
+    val music: MediaItem?
+        get() = player.currentMediaItem
 
     var onSongPrepared: (() -> Unit) = {}
 
@@ -48,14 +46,9 @@ object MyPlayer {
 
     fun initPlayer(context: Context) {
         player = ExoPlayer.Builder(context).build()
-        val dataSourceFactory = DefaultDataSource.Factory(context)
-        val mediaSource =
-
-        player.addListener(createListener(context))
+        player.addListener(createListener())
         songs = Util.mp3Files(context)
-        for (i in 0 until songs.size) {
-            player.addMediaItem(songs[i].item)
-        }
+        player.addMediaItems(songs)
         player.prepare()
     }
 
@@ -68,6 +61,7 @@ object MyPlayer {
     }
 
     fun startSong(context: Context, playType: PlayType) {
+        bluetoothCommand = false
         focus?.abandonFocus()
         focus = AudioFocus(context)
         try {
@@ -82,25 +76,34 @@ object MyPlayer {
         }
     }
 
-    private fun createListener(context: Context) = object : Player.Listener {
-
-        override fun onIsPlayingChanged(isPlaying: Boolean) {
-            if (isPlaying) {
-                refreshUI()
-            }
-            else if (!player.playWhenReady) {
-                refreshUI()
-            }
-            Log.d(TAG, "ISPLAYING CHANGED!!!")
-        }
-
-        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-            refreshUI()
-        }
+    private fun createListener() = object : Player.Listener {
 
         override fun onPlaybackStateChanged(playbackState: Int) {
-            if(playbackState == Player.STATE_READY) {
+            Log.d(TAG, "State changed!")
+        }
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+//            CoroutineScope(Dispatchers.IO).launch {
+//                Thread.sleep(200)
+//            }
+            if (isPlaying) {
+                refreshUI()
+                Log.d(TAG, "IS PLAYING TRUE!!!")
+            }
+            else if (!player.playWhenReady || bluetoothCommand) {
+                refreshUI()
+                Log.d(TAG, "IS PLAYING FALSE!!!")
+                bluetoothCommand = true
+            }
+            else {
+                Log.d(TAG, "IS PLAYING FALSE BUT WANTS NEXT")
+            }
+        }
 
+
+        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+            if (reason != Player.MEDIA_ITEM_TRANSITION_REASON_SEEK) {
+                refreshUI()
+                Log.d(TAG, "MEDIA TRANSITION")
             }
         }
     }
@@ -120,12 +123,12 @@ object MyPlayer {
 //        refreshUI()
     }
 
-    private fun pauseSong() {
+    fun pauseSong() {
         forcePauseSong()
         focus?.abandonFocus()
     }
 
-    private fun playSong() {
+    fun playSong() {
         focus?.let {
             if (it.requestFocus()) {
                 forcePlaySong()

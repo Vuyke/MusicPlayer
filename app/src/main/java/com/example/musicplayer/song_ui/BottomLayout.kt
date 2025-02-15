@@ -11,6 +11,7 @@ import com.example.musicplayer.R
 class BottomLayout(view: View) : SongUI(view) {
     val bottom: ConstraintLayout = view.findViewById(R.id.bottomLayout)
     private val progressBar: ProgressBar = view.findViewById(R.id.progressBar)
+    override val format = R.mipmap.ic_launcher
 
     override fun updateDuration() {
         progressBar.max = MyPlayer.duration

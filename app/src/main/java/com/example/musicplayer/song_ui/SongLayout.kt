@@ -10,6 +10,7 @@ class SongLayout(view: View): SongUI(view) {
     private val seekBar: SeekBar = view.findViewById(R.id.seekBar)
     private val next: ImageView = view.findViewById(R.id.next_button)
     private val previous: ImageView = view.findViewById(R.id.previous_button)
+    override val format = R.drawable.launch_icon
 
     init {
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {

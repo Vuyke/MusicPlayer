@@ -29,6 +29,6 @@ class ActivityPlayingSong : AppCompatActivity() {
             insets
         }
         albumArt = findViewById(R.id.albumArt)
-        Util.getImageView(MyPlayer.music?.artPath, this, albumArt)
+        Util.getImageView(MyPlayer.music?.mediaMetadata?.artworkUri, this, albumArt, R.drawable.launch_icon)
     }
 }

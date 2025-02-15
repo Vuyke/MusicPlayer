@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.media3.common.MediaItem
 import androidx.recyclerview.widget.RecyclerView
-import com.example.musicplayer.data_class.MusicItem
 import com.example.musicplayer.R
 
-class ItemRecycleAdapter(private val context: Context, private val songs: MutableList<MusicItem>, private val listener: (MusicItem, Int) -> Unit) : RecyclerView.Adapter<ItemRecycleAdapter.ItemViewHolder>() {
+class ItemRecycleAdapter(private val context: Context, private val songs: MutableList<MediaItem>, private val listener: (MediaItem, Int) -> Unit) : RecyclerView.Adapter<ItemRecycleAdapter.ItemViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         val view: View =LayoutInflater.from(parent.context).inflate(R.layout.recycleitem, parent, false)
@@ -33,11 +33,11 @@ class ItemRecycleAdapter(private val context: Context, private val songs: Mutabl
         private val artist: TextView = itemView.findViewById(R.id.recycleempty)
         private var path = ""
         private var image: ImageView = itemView.findViewById(R.id.albumArt)
-        fun update(song: MusicItem) {
-            this.title.text = song.name
-            this.artist.text = song.artist
-            this.path = song.path
-            Util.getImageView(song.artPath, context, image)
+        fun update(song: MediaItem) {
+            this.title.text = song.mediaMetadata.title
+            this.artist.text = song.mediaMetadata.artist
+            this.path = song.mediaId
+            Util.getImageView(song.mediaMetadata.artworkUri, context, image, R.mipmap.ic_launcher)
         }
     }
 }

@@ -11,8 +11,8 @@
 
     <ImageView
         android:id="@+id/albumArt"
-        android:layout_width="280dp"
-        android:layout_height="280dp"
+        android:layout_width="288dp"
+        android:layout_height="288dp"
         android:transitionName="album_cover_transition"
         app:layout_constraintBottom_toTopOf="@+id/song"
         app:layout_constraintEnd_toEndOf="parent"
