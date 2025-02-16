@@ -20,6 +20,7 @@ import androidx.media3.session.SessionToken
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.musicplayer.R
+import com.example.musicplayer.data_class.PlayType
 import com.example.musicplayer.song_ui.BottomLayout
 import com.example.musicplayer.song_ui.MusicPlayerService
 import com.example.musicplayer.utils.ItemRecycleAdapter
@@ -62,7 +63,7 @@ class MainActivity : AppCompatActivity() {
             startForegroundService(serviceIntent)
 //            controllerFuture.get().play()
             MyPlayer.initQueue(i)
-            MyPlayer.startSong(this, MyPlayer.PlayType.CURRENT)
+            MyPlayer.startSong(PlayType.CURRENT)
 
         })
         bottom.bottom.setOnClickListener {

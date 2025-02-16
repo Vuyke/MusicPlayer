@@ -3,30 +3,32 @@ package com.example.musicplayer.utils
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.util.Log
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.example.musicplayer.R
+import com.example.musicplayer.data_class.PlayType
 import com.example.musicplayer.song_ui.SongUI
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+
 
 object MyPlayer {
 
-    enum class PlayType {
-        NEXT, PREV, CURRENT
-    }
-
     private var bluetoothCommand: Boolean = true
     lateinit var player: ExoPlayer
-    private var focus: AudioFocus? = null
     private var activeSongUI: WeakReference<SongUI>? = null
     var songs: MutableList<MediaItem> = mutableListOf()
+    private var alreadyPlayed = false
+
+//    val mediaSource =
+//        ProgressiveMediaSource.Factory(customDataSourceFactory, customExtractorsFactory)
+//            .setLoadErrorHandlingPolicy(customLoadErrorHandlingPolicy)
+//            .createMediaSource(MediaItem.fromUri(streamUri))
 
     val music: MediaItem?
-        get() = player.currentMediaItem
+        get() = if (alreadyPlayed) player.currentMediaItem else null
 
     var onSongPrepared: (() -> Unit) = {}
 
@@ -39,14 +41,14 @@ object MyPlayer {
     val duration: Int
         get() = player.duration.toInt()
 
-    fun setVolume(x: Float) {
-        if (x in 0.0..1.0)
-            player.volume = x
-    }
-
     fun initPlayer(context: Context) {
         player = ExoPlayer.Builder(context).build()
         player.addListener(createListener())
+        val audioAttributes = AudioAttributes.Builder()
+            .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+            .setUsage(C.USAGE_MEDIA)
+            .build()
+        player.setAudioAttributes(audioAttributes, true)
         songs = Util.mp3Files(context)
         player.addMediaItems(songs)
         player.prepare()
@@ -60,10 +62,9 @@ object MyPlayer {
         player.seekTo(ind, 0)
     }
 
-    fun startSong(context: Context, playType: PlayType) {
+    fun startSong(playType: PlayType) {
+        alreadyPlayed = true
         bluetoothCommand = false
-        focus?.abandonFocus()
-        focus = AudioFocus(context)
         try {
             if(playType == PlayType.NEXT)
                 player.seekToNextMediaItem()
@@ -82,23 +83,11 @@ object MyPlayer {
             Log.d(TAG, "State changed!")
         }
         override fun onIsPlayingChanged(isPlaying: Boolean) {
-//            CoroutineScope(Dispatchers.IO).launch {
-//                Thread.sleep(200)
-//            }
-            if (isPlaying) {
+            if (isPlaying || bluetoothCommand || !player.playWhenReady) {
                 refreshUI()
                 Log.d(TAG, "IS PLAYING TRUE!!!")
             }
-            else if (!player.playWhenReady || bluetoothCommand) {
-                refreshUI()
-                Log.d(TAG, "IS PLAYING FALSE!!!")
-                bluetoothCommand = true
-            }
-            else {
-                Log.d(TAG, "IS PLAYING FALSE BUT WANTS NEXT")
-            }
         }
-
 
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
             if (reason != Player.MEDIA_ITEM_TRANSITION_REASON_SEEK) {
@@ -113,27 +102,12 @@ object MyPlayer {
         activeSongUI?.get()?.refresh()
     }
 
-    fun forcePlaySong() {
-        player.play()
-//        refreshUI()
-    }
-
-    fun forcePauseSong() {
+    private fun pauseSong() {
         player.pause()
-//        refreshUI()
     }
 
-    fun pauseSong() {
-        forcePauseSong()
-        focus?.abandonFocus()
-    }
-
-    fun playSong() {
-        focus?.let {
-            if (it.requestFocus()) {
-                forcePlaySong()
-            }
-        }
+    private fun playSong() {
+        player.play()
     }
 
     fun songMove(duration: Int) {
@@ -142,7 +116,6 @@ object MyPlayer {
 
     fun destroy() {
         player.release()
-        focus?.abandonFocus()
     }
 
     fun playPauseResource(): Int {

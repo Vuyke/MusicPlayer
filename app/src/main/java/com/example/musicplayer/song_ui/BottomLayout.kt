@@ -1,12 +1,10 @@
 package com.example.musicplayer.song_ui
 
-import android.content.ContentValues.TAG
-import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.example.musicplayer.utils.MyPlayer
 import com.example.musicplayer.R
+import com.example.musicplayer.utils.MyPlayer
 
 class BottomLayout(view: View) : SongUI(view) {
     val bottom: ConstraintLayout = view.findViewById(R.id.bottomLayout)

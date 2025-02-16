@@ -17,8 +17,8 @@ abstract class SongUI(view: View) {
     private val playButton: ImageView = view.findViewById(R.id.play_pause_button)
     val albumArt: ImageView = view.findViewById(R.id.albumArt)
     protected val context: Context = view.context
-    private val handler = Handler(Looper.getMainLooper())
-    private val updateProgressBar = object : Runnable {
+    protected val handler = Handler(Looper.getMainLooper())
+    protected val updateProgressBar = object : Runnable {
         override fun run() {
             updateProgress(MyPlayer.currentPosition)
             handler.postDelayed(this, 750)
