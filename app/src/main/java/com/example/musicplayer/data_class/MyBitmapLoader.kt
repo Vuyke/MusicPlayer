@@ -21,6 +21,6 @@ class MyBitmapLoader(private val context: Context) : BitmapLoader {
     }
 
     override fun loadBitmap(uri: Uri): ListenableFuture<Bitmap> {
-        return Futures.immediateFuture(Util.getAlbumArt(uri, context))
+        return Futures.immediateFuture(Util.getAlbumArt(uri, context)) //should update with glide
     }
 }

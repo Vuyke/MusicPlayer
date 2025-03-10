@@ -30,7 +30,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".song_ui.MusicPlayerService"
+            android:name=".activities.MusicPlayerService"
             android:foregroundServiceType="mediaPlayback"
             android:exported="true">
             <intent-filter>

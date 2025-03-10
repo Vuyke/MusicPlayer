@@ -2,20 +2,20 @@ package com.example.musicplayer.song_ui
 
 import android.view.View
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.musicplayer.R
 import com.example.musicplayer.utils.MyPlayer
+import com.example.musicplayer.utils.Util
 
-class BottomLayout(view: View) : SongUI(view) {
+class BottomLayout(view: View, player: MyPlayer?) : SongUI(view, player) {
     val bottom: ConstraintLayout = view.findViewById(R.id.bottomLayout)
     private val progressBar: ProgressBar = view.findViewById(R.id.progressBar)
-    override val format = R.mipmap.ic_launcher
 
     override fun updateDuration() {
-        progressBar.max = MyPlayer.duration
-        progressBar.progress = MyPlayer.currentPosition
-        if (bottom.visibility != ConstraintLayout.VISIBLE) {
-            bottom.visibility = ConstraintLayout.VISIBLE
+        player?.let {
+            progressBar.max = it.duration
+            progressBar.progress = it.currentPosition
         }
     }
 
