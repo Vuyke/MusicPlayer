@@ -17,7 +17,7 @@ import androidx.media3.common.MediaItem
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.musicplayer.R
-import com.example.musicplayer.viewModel.SongViewModel
+import com.example.musicplayer.view_model.SongViewModel
 import com.example.musicplayer.song_ui.BottomLayout
 import com.example.musicplayer.editing.DeleteProcess
 import com.example.musicplayer.utils.ItemRecycleAdapter

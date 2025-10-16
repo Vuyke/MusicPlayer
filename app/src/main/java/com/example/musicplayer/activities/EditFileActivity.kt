@@ -13,7 +13,7 @@ import com.example.musicplayer.R
 import com.example.musicplayer.editing.TrimProcess
 import com.example.musicplayer.song_ui.EditUI
 import com.example.musicplayer.utils.Util
-import com.example.musicplayer.viewModel.EditSongViewModel
+import com.example.musicplayer.view_model.EditSongViewModel
 
 class EditFileActivity : AppCompatActivity() {
     private val viewModel: EditSongViewModel by viewModels()

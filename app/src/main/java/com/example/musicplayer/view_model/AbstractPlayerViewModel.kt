@@ -1,4 +1,4 @@
-package com.example.musicplayer.viewModel
+package com.example.musicplayer.view_model
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

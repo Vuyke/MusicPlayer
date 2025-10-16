@@ -8,7 +8,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.musicplayer.R
 import com.example.musicplayer.song_ui.SongLayout
-import com.example.musicplayer.viewModel.SongViewModel
+import com.example.musicplayer.view_model.SongViewModel
 
 class ActivityPlayingSong : AppCompatActivity() {
     private val viewModel: SongViewModel by viewModels()
