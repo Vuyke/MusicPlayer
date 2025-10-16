@@ -20,6 +20,9 @@
             android:name=".activities.ActivityPlayingSong"
             android:exported="false" />
         <activity
+            android:name=".activities.EditFileActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.MainActivity"
             android:launchMode="singleTop"
             android:exported="true">

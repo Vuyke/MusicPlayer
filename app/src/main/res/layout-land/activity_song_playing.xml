@@ -11,28 +11,29 @@
 
     <ImageView
         android:id="@+id/albumArt"
-        android:layout_width="288dp"
-        android:layout_height="288dp"
+        android:layout_width="180dp"
+        android:layout_height="180dp"
         android:transitionName="album_cover_transition"
-        app:layout_constraintBottom_toTopOf="@+id/songName"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/previous_button"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toStartOf="@id/guideline_middle"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.65"/>
 
     <TextView
         android:id="@+id/songName"
         android:transitionName="song_transition"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:paddingStart="15dp"
         android:paddingEnd="15dp"
+        android:paddingBottom="15dp"
         android:text="Song name"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toTopOf="@id/artist"
+        app:layout_constraintStart_toStartOf="@id/guideline_middle"
+        app:layout_constraintEnd_toEndOf="parent" />
     <TextView
         android:id="@+id/duration"
         android:layout_width="wrap_content"
@@ -54,7 +55,7 @@
     <TextView
         android:id="@+id/artist"
         android:transitionName="artist_transition"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:paddingStart="15dp"
         android:paddingEnd="15dp"
@@ -62,9 +63,11 @@
         android:textStyle="italic"
         android:textSize="17sp"
         android:paddingTop="20dp"
+        app:layout_constraintBottom_toTopOf="@id/next_button"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/songName" />
+        app:layout_constraintStart_toStartOf="@id/guideline_middle"
+         />
 
     <SeekBar
         android:id="@+id/seekBar"
@@ -73,7 +76,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline" />
+        app:layout_constraintTop_toTopOf="@id/guideline" />
 
     <ImageView
         android:id="@+id/play_pause_button"
@@ -82,9 +85,9 @@
         android:clickable="true"
         android:focusable="true"
         android:src="@drawable/play"
-        app:layout_constraintBottom_toTopOf="@+id/guideline"
-        app:layout_constraintEnd_toStartOf="@+id/next_button"
-        app:layout_constraintStart_toEndOf="@+id/previous_button" />
+        app:layout_constraintBottom_toTopOf="@id/guideline"
+        app:layout_constraintEnd_toStartOf="@id/next_button"
+        app:layout_constraintStart_toEndOf="@id/previous_button" />
 
     <ImageView
         android:id="@+id/next_button"
@@ -93,9 +96,9 @@
         android:clickable="true"
         android:focusable="true"
         android:src="@drawable/next_button"
-        app:layout_constraintBottom_toTopOf="@+id/guideline"
+        app:layout_constraintBottom_toTopOf="@id/guideline"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/play_pause_button" />
+        app:layout_constraintStart_toEndOf="@id/play_pause_button" />
 
     <ImageView
         android:id="@+id/previous_button"
@@ -104,9 +107,9 @@
         android:clickable="true"
         android:focusable="true"
         android:src="@drawable/previous_button"
-        app:layout_constraintBottom_toTopOf="@+id/guideline"
-        app:layout_constraintEnd_toStartOf="@+id/play_pause_button"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toTopOf="@id/guideline"
+        app:layout_constraintEnd_toStartOf="@id/play_pause_button"
+        app:layout_constraintStart_toEndOf="@id/shuffle" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
@@ -119,8 +122,14 @@
         android:id="@+id/shuffle"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        app:layout_constraintBottom_toTopOf="@+id/play_pause_button"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/previous_button"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/artist" />
+        app:layout_constraintBottom_toTopOf="@id/guideline" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_middle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
 </androidx.constraintlayout.widget.ConstraintLayout>

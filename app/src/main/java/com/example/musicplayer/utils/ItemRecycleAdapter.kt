@@ -13,7 +13,7 @@ import com.example.musicplayer.R
 class ItemRecycleAdapter(private val context: Context, private val songs: SongArray, private val click: (MediaItem, Int) -> Unit, private val longClick: (MediaItem, Int) -> Unit) : RecyclerView.Adapter<ItemRecycleAdapter.ItemViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.recycleitem, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.recycle_item, parent, false)
         return ItemViewHolder(view, context)
     }
 

@@ -1,41 +1,50 @@
 package com.example.musicplayer.utils
 
-import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.session.MediaController
-import com.example.musicplayer.R
 import com.example.musicplayer.data_class.PlayType
 
 
-class MyPlayer (val player: Player) {
-
-//    val mediaSource =
-//        ProgressiveMediaSource.Factory(customDataSourceFactory, customExtractorsFactory)
-//            .setLoadErrorHandlingPolicy(customLoadErrorHandlingPolicy)
-//            .createMediaSource(MediaItem.fromUri(streamUri))
-
-    val music: MediaItem?
-        get() = player.currentMediaItem
-
+class MyPlayer (private val player: Player) {
     val isPlaying: Boolean
         get() = player.isPlaying
 
-    val currentPosition: Int
-        get() = player.currentPosition.toInt()
+    val currentPosition: Long
+        get() = player.currentPosition
 
-    val duration: Int
-        get() = player.duration.toInt()
+    val duration: Long
+        get() = player.duration
 
+    val currentSong: MediaItem?
+        get() = player.currentMediaItem
 
-    fun initQueue(ind: Int) {
+    val currentShuffleMode: Boolean
+        get() = player.shuffleModeEnabled
+
+    fun update(mediaItem: MediaItem, index: Int) {
+        val curPosition = currentPosition
+        player.replaceMediaItem(index, mediaItem)
+        if (player.currentMediaItemIndex == index) {
+            player.seekTo(curPosition)
+        }
+    }
+
+    fun delete(index: Int) {
+        player.removeMediaItem(index)
+    }
+
+    private fun initQueue(ind: Int) {
         player.seekTo(Util.songs.getIndex(ind), 0)
     }
 
+    fun startSongFromPosition(ind: Int) {
+        initQueue(ind)
+        startSong(PlayType.CURRENT)
+        Util.logMediaItemInfo(ind)
+    }
+
     fun startSong(playType: PlayType) {
-        Util.bluetoothCommand = false
         try {
             if(playType == PlayType.NEXT)
                 player.seekToNextMediaItem()
@@ -44,7 +53,7 @@ class MyPlayer (val player: Player) {
             playSong()
         }
         catch(e: Exception) {
-            Log.d(TAG, "Error playing the song!")
+            Log.d("Application error", "Error playing the song!")
         }
     }
 
@@ -56,16 +65,26 @@ class MyPlayer (val player: Player) {
         player.play()
     }
 
-    fun songMove(duration: Int) {
-        player.seekTo(duration.toLong())
+    fun songMove(duration: Long) {
+        player.seekTo(duration)
     }
 
-    fun playPauseResource(): Int {
-        return if (player.isPlaying) R.drawable.pause
-        else R.drawable.play
+    fun changeShuffleMode() {
+        player.shuffleModeEnabled = !player.shuffleModeEnabled
     }
 
     fun destroy() {
         player.release()
+    }
+
+    fun changeState() {
+        if (isPlaying)
+            pauseSong()
+        else
+            playSong()
+    }
+
+    fun addListener(listener: Player.Listener) {
+        player.addListener(listener)
     }
 }

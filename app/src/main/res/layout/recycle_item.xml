@@ -4,7 +4,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#00121E"
+    android:background="@color/dark_blue"
     android:clickable="true"
     android:focusable="true">
 
@@ -47,7 +47,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:background="#99C9FF"
+        android:background="@color/light_blue"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

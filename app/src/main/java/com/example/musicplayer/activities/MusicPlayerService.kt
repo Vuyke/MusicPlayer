@@ -1,6 +1,5 @@
 package com.example.musicplayer.activities
 
-import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
@@ -13,17 +12,16 @@ import com.example.musicplayer.data_class.MyBitmapLoader
 import com.example.musicplayer.utils.Util
 
 class MusicPlayerService : MediaSessionService() {
-//    private val customCommandPrev = SessionCommand(PREV, Bundle.EMPTY)
     private var mediaSession: MediaSession? = null
 
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
+        val player: ExoPlayer = ExoPlayer.Builder(this).build()
         val audioAttributes = AudioAttributes.Builder()
             .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
             .setUsage(C.USAGE_MEDIA)
             .build()
-        val player: ExoPlayer = ExoPlayer.Builder(this).build()
         mediaSession = MediaSession.Builder(this, player)
             .setBitmapLoader(MyBitmapLoader(applicationContext))
             .setCallback(sessionCallback)
@@ -33,7 +31,7 @@ class MusicPlayerService : MediaSessionService() {
             it.addMediaItems(Util.songs.getMediaItems())
             it.prepare()
         }
-        Log.d(TAG, "Created service")
+        Log.d("Music service", "Created service")
     }
 
     private val sessionCallback = object : MediaSession.Callback{}

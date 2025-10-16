@@ -4,13 +4,12 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
+import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.util.Locale
+import java.nio.file.Paths
 
 class SongArray(context: Context? = null) {
     private val indexArray: MutableList<Int> = mutableListOf()
@@ -53,6 +52,7 @@ class SongArray(context: Context? = null) {
     fun remove(ind: Int) {
         synchronized(indexArray) {
             val temp = indexArray[ind]
+            Log.d("Removal","Removed song on $ind spot, in index array: ${indexArray[ind]}, in songs array: ${songs[temp]}")
             songs.removeAt(temp)
             indexArray.removeAt(ind)
             for (i in 0..<indexArray.size) {
@@ -61,14 +61,25 @@ class SongArray(context: Context? = null) {
         }
     }
 
+    private fun getPath(path: String, newName: String): String {
+        val file = Paths.get(path)
+        val par = file.parent.toString()
+        val dotIndex = path.lastIndexOf('.')
+        if(dotIndex == -1)
+            return path
+        val final = par + "/" + newName + path.substring(dotIndex)
+        return final
+    }
+
     fun updateName(ind: Int, newName: String) {
         val prev = get(ind)
         val artist = prev.mediaMetadata.artist.toString()
         val artPath = prev.mediaMetadata.artworkUri ?: Uri.parse("")
-        val path = prev.localConfiguration?.uri.toString() ?: ""
+        val path = getPath(prev.localConfiguration?.uri.toString(), newName)
         val albumTitle = prev.mediaMetadata.albumTitle.toString()
         val songPath = prev.mediaId
-        set(ind, createMediaItem(newName, artist, path, artPath, albumTitle, songPath))
+        val extras = prev.mediaMetadata.extras
+        set(ind, createMediaItem(newName, artist, path, artPath, albumTitle, songPath, extras))
     }
 
     private fun getSongFiles(context: Context) {
@@ -78,7 +89,8 @@ class SongArray(context: Context? = null) {
         val collect: Array<String> = arrayOf(
             MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM_ID,
-            MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media._ID
+            MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media._ID,
+            MediaStore.Audio.Media.MIME_TYPE, MediaStore.Audio.Media.RELATIVE_PATH
         )
         val selection =
             "LOWER(${MediaStore.Audio.Media.MIME_TYPE}) IN (?, ?, ?, ?, ?) AND ${MediaStore.Audio.Media.DISPLAY_NAME}<> ?"
@@ -99,20 +111,33 @@ class SongArray(context: Context? = null) {
             val albumIndex = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
             val albumIdIndex = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
             val idSong = it.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
+            val idMime = it.getColumnIndexOrThrow(MediaStore.Audio.Media.MIME_TYPE)
+            val relativeId = it.getColumnIndexOrThrow(MediaStore.Audio.Media.RELATIVE_PATH)
             while (it.moveToNext()) {
-                val id = it.getLong(albumIdIndex)
-                val id2 = it.getLong(idSong)
-                val songPath = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.toString() + "/" + id2
-                val albumUri = ContentUris.withAppendedId(
-                    Uri.parse("content://media/external/audio/albumart/"),
-                    id
-                )
-                songs.add(
-                    createMediaItem(
-                        it.getString(dataIndex), it.getString(artistIndex),
-                        it.getString(pathIndex), albumUri, it.getString(albumIndex), songPath
+                try {
+                    val id = it.getLong(albumIdIndex)
+                    val id2 = it.getLong(idSong)
+                    val songPath =
+                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.toString() + "/" + id2
+                    val albumUri = ContentUris.withAppendedId(
+                        Uri.parse("content://media/external/audio/albumart/"),
+                        id
                     )
-                )
+                    val extras = Bundle().apply {
+                        putString("mime_type", it.getString(idMime))
+                        putString("relative_path", it.getString(relativeId))
+                    }
+                    songs.add(
+                        createMediaItem(
+                            it.getString(dataIndex), it.getString(artistIndex),
+                            it.getString(pathIndex), albumUri, it.getString(albumIndex),
+                            songPath, extras
+                        )
+                    )
+                }
+                catch(e: NullPointerException) {
+                    Log.d("Loading media", "Loading failed because of null exception.")
+                }
             }
         }
         songs.reverse()
@@ -124,12 +149,14 @@ class SongArray(context: Context? = null) {
         path: String,
         artPath: Uri,
         albumTitle: String,
-        songPath: String
+        songPath: String,
+        extras: Bundle?
     ): MediaItem {
         val metadata = MediaMetadata.Builder()
             .setTitle(songName)
             .setArtist(artist)
             .setArtworkUri(artPath)
+            .setExtras(extras)
         if (!artist.contains("unknown", true)) {
             metadata.setAlbumTitle(albumTitle)
         }
@@ -148,7 +175,13 @@ class SongArray(context: Context? = null) {
                 indexArray.sortBy {
                     editDistance(
                         songs[it].mediaMetadata.title.toString().lowercase(), s.lowercase()
-                    )
+                    ).coerceAtMost(
+                        editDistance(
+                            songs[it].mediaMetadata.artist.toString().lowercase(), s.lowercase()
+                        )).coerceAtMost(
+                        editDistance(
+                            songs[it].mediaMetadata.albumTitle.toString().lowercase(), s.lowercase()
+                        ))
                 }
             }
         }
