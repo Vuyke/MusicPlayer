@@ -9,7 +9,10 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recycle: RecyclerView
     private lateinit var bottomLayout: BottomLayout
     private lateinit var search: EditText
+    private lateinit var spinner: Spinner
     private lateinit var deleteProcess: DeleteProcess
     private lateinit var renameProcess: RenameProcess
 
@@ -49,6 +53,7 @@ class MainActivity : AppCompatActivity() {
         }
         Util.initSongs(this)
         setContentView(R.layout.activity_main)
+        initSpinner()
         initRecycle()
         initBottom()
         initSearch()
@@ -56,7 +61,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun viewModelLogic() {
-        viewModel.song.observe(this) { song ->
+        viewModel.song.observe(
+            this) { song ->
             bottomLayout.refreshOnSongChange(song)
         }
         viewModel.isPlaying.observe(this) { isPlaying ->
@@ -73,6 +79,32 @@ class MainActivity : AppCompatActivity() {
         viewModel.duration.observe(this) { duration ->
             bottomLayout.updateDuration(duration)
         }
+        viewModel.sortOccurred.observe(this) { _ ->
+            recycle.adapter?.notifyDataSetChanged()
+        }
+    }
+
+    private fun initSpinner() {
+        spinner = findViewById(R.id.sortSpinner)
+        val options = arrayOf("Default", "Artist", "BPM")
+
+        spinner.adapter = ArrayAdapter(this,
+            android.R.layout.simple_spinner_dropdown_item,
+            options)
+
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val selected = options[position]
+                if (selected == "Artist") {
+                    viewModel.sortArtist()
+                }
+                else if (selected == "Default") {
+                    viewModel.sortDefault()
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
     }
 
     private fun initRecycle() {

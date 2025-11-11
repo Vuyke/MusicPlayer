@@ -167,10 +167,23 @@ class SongArray(context: Context? = null) {
             .build()
     }
 
+    fun sortArtist() {
+        indexArray.sortWith (
+            compareBy (
+                { songs[it].mediaMetadata.artist.toString() },
+                { songs[it].mediaMetadata.albumTitle.toString() }
+            )
+        )
+    }
+
+    fun sortDefault() {
+        indexArray.sort()
+    }
+
     fun updateSearch(s: String) {
         synchronized(indexArray) {
             if (s == "") {
-                indexArray.sort()
+                sortDefault()
             } else {
                 indexArray.sortBy {
                     editDistance(

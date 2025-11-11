@@ -6,10 +6,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity">
+    <Spinner
+        android:id="@+id/sortSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
     <EditText
         android:id="@+id/searchSong"
         android:background="@color/light_blue"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
@@ -19,6 +25,7 @@
         android:inputType="text"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/sortSpinner"
         />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycleViewForSongs"

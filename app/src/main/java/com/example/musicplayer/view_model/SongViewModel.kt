@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
@@ -13,18 +14,18 @@ import com.example.musicplayer.activities.MusicPlayerService
 import com.example.musicplayer.utils.MyPlayer
 import com.example.musicplayer.utils.Util
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class SongViewModel(app: Application) : AbstractPlayerViewModel(app) {
     private var searchJob: Job? = null
 
     private val _shuffleMode = MutableLiveData<Boolean>()
     val shuffleMode: LiveData<Boolean> get() = _shuffleMode
+
+    private val _sortOccurred = MutableLiveData(false)
+    val sortOccurred: LiveData<Boolean> get() = _sortOccurred
 
     init {
         val sessionToken = SessionToken(getApplication(), ComponentName(getApplication(), MusicPlayerService::class.java))
@@ -53,18 +54,31 @@ class SongViewModel(app: Application) : AbstractPlayerViewModel(app) {
         updateIsPlaying(player.isPlaying)
     }
 
+    private fun updateSortOccurred() {
+        _sortOccurred.postValue(!sortOccurred.value!!)
+    }
+
     fun searchUpdated(text: String) {
         searchJob?.cancel()
-        searchJob = CoroutineScope(Dispatchers.Main).launch {
+        searchJob = viewModelScope.launch {
             delay(250)
-            withContext(Dispatchers.IO) {
-                Util.songs.updateSearch(text)
-            }
+            Util.songs.updateSearch(text)
+            updateSortOccurred()
         }
     }
 
     fun playerChangeShuffleMode() {
         player.changeShuffleMode()
         _shuffleMode.postValue(player.currentShuffleMode)
+    }
+
+    fun sortArtist() {
+        Util.songs.sortArtist()
+        updateSortOccurred()
+    }
+
+    fun sortDefault() {
+        Util.songs.sortDefault()
+        updateSortOccurred()
     }
 }
